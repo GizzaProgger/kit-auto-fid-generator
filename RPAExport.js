@@ -1,0 +1,70 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+import puppeteer from 'puppeteer-extra';
+import RecaptchaPlugin from "puppeteer-extra-plugin-recaptcha"
+import { executablePath } from "puppeteer"
+
+(async () => {
+
+  const AdminUrl = process.env.ADMIN_URL
+  const Login = process.env.ADMIN_LOGIN
+  const Password = process.env.ADMIN_PASSWORD
+  const TargetUrl = process.env.TARGET_URL
+  const SolverToken = process.env.RECAPTCHA_SOLVER_TOKEN
+
+  puppeteer.use(
+    RecaptchaPlugin({
+      provider: {
+        id: '2captcha',
+        token: SolverToken // REPLACE THIS WITH YOUR OWN 2CAPTCHA API KEY ⚡
+      },
+      visualFeedback: true // colorize reCAPTCHAs (violet = detected, green = solved)
+    })
+  )
+
+  const browser = await puppeteer.launch({
+    headless: false,
+    executablePath: executablePath()
+  })
+  const page = await browser.newPage()
+  await page.goto(AdminUrl)
+
+  await page.waitForSelector("#form");
+  
+  await page.solveRecaptchas()
+
+  await page.click("input[name=email]");
+  await page.type("input[name=email]", Login);
+
+  await page.click("input[name=password]");
+  await page.type("input[name=password]", Password);
+  
+  await page.click("#send");
+  await page.waitForNavigation();
+
+  // await page.evaluate(() => location.href = "https://store.tilda.cc/store/?projectid=4201264")
+  // await page.goto("https://store.tilda.cc/store/?projectid=4201264")
+
+
+  await page.click("[href='/projects/?projectid=4201264']")
+  await page
+    .waitForSelector("[href='/identity/gostore/?projectid=4201264']")
+
+  await page.click("[href='/identity/gostore/?projectid=4201264']")
+  await page.waitForNavigation();
+
+  // await page.click(".tstore__etc-btn__menu-item:first-child")
+  await page.evaluate(() => tstore_start_import('csv'))
+  
+  const [fileChooser] = await Promise.all([
+    page.waitForFileChooser(),
+    page.click('.js-import-load-file-btn')
+  ])
+  await fileChooser.accept(["./to_import.csv"])
+  await page.click('.js-import-load-data')
+  await page.waitForSelector(".tstore-checkbox__label_with-text:last-child")
+  await page.click(".tstore-checkbox__label_with-text:last-child")
+  await page.click(".btn_importcsv_proccess")
+  
+  browser.close()
+})()
