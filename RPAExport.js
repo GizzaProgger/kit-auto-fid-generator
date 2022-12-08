@@ -37,6 +37,7 @@ import { executablePath } from "puppeteer"
     })
   }
   const page = await browser.newPage()
+  page.on('console', messege => console.log(messege))
   await page.goto(AdminUrl)
 
   await page.waitForSelector("#form");
