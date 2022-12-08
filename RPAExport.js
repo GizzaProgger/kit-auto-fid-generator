@@ -23,16 +23,17 @@ import { executablePath } from "puppeteer"
   )
 
   const browser = await puppeteer.launch({
-    headless: false,
-    executablePath: executablePath()
+    headless: true,
+    executablePath: executablePath(),
+    args: ['--no-sandbox']
   })
   const page = await browser.newPage()
   await page.goto(AdminUrl)
 
   await page.waitForSelector("#form");
-  
+  console.log("page loaded")
   await page.solveRecaptchas()
-
+  console.log("captcha solved")
   await page.click("input[name=email]");
   await page.type("input[name=email]", Login);
 
@@ -41,7 +42,7 @@ import { executablePath } from "puppeteer"
   
   await page.click("#send");
   await page.waitForNavigation();
-
+  console.log("loginned")
   // await page.evaluate(() => location.href = "https://store.tilda.cc/store/?projectid=4201264")
   // await page.goto("https://store.tilda.cc/store/?projectid=4201264")
 
@@ -52,7 +53,7 @@ import { executablePath } from "puppeteer"
 
   await page.click("[href='/identity/gostore/?projectid=4201264']")
   await page.waitForNavigation();
-
+  console.log("in products")
   // await page.click(".tstore__etc-btn__menu-item:first-child")
   await page.evaluate(() => tstore_start_import('csv'))
   
@@ -60,11 +61,12 @@ import { executablePath } from "puppeteer"
     page.waitForFileChooser(),
     page.click('.js-import-load-file-btn')
   ])
+  console.log("file loaded")
   await fileChooser.accept(["./to_import.csv"])
   await page.click('.js-import-load-data')
   await page.waitForSelector(".tstore-checkbox__label_with-text:last-child")
   await page.click(".tstore-checkbox__label_with-text:last-child")
   await page.click(".btn_importcsv_proccess")
-  
+  console.log("finish")
   browser.close()
 })()
