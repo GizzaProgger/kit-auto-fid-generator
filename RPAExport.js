@@ -23,8 +23,8 @@ import { executablePath } from "puppeteer"
   )
 
   const browser = await puppeteer.launch({
-    headless: !process.env.IS_DEV,
-    executablePath: process.env.IS_DEV ? executablePath() : '/usr/bin/chromium-browser',
+    headless: process.env.IS_DEV,
+    executablePath: process.env.IS_DEV ? '/usr/bin/chromium-browser' : executablePath(),
     args: ['--no-sandbox']
   })
   const page = await browser.newPage()
