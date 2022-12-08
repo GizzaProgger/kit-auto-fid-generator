@@ -38,8 +38,6 @@ import { executablePath } from "puppeteer"
   }
   const page = await browser.newPage()
   await page.goto(AdminUrl)
-  await page.screenshot({ path: "shot.png" })
-
 
   await page.waitForSelector("#form");
   console.log("page loaded")
@@ -73,6 +71,8 @@ import { executablePath } from "puppeteer"
     page.click('.js-import-load-file-btn')
   ])
   console.log("file loaded")
+  await page.screenshot({ path: "shot.png" })
+
   await page.screenshot("shot.png")
   await fileChooser.accept(["./to_import.csv"])
   await page.click('.js-import-load-data')
