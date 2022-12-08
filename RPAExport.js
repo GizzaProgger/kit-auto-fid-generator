@@ -75,9 +75,9 @@ import { executablePath } from "puppeteer"
   const uploader = await page.$("input[type='file']")
   await uploader.uploadFile("./to_import.csv")
   await page.click('.js-import-load-data')
+  await page.screenshot({ path: "shot.png" })
   await page.waitForSelector('[name="importphoto"]')
   
-  await page.screenshot({ path: "shot.png" })
 
   await page.click('[name="importphoto"]')
   await page.click(".btn_importcsv_proccess")
