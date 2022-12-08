@@ -23,8 +23,8 @@ import { executablePath } from "puppeteer"
   )
 
   const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: '/usr/bin/chromium-browser',
+    headless: false,
+    executablePath: process.env.IS_DEV ? executablePath() : '/usr/bin/chromium-browser',
     args: ['--no-sandbox']
   })
   const page = await browser.newPage()
@@ -64,9 +64,9 @@ import { executablePath } from "puppeteer"
   console.log("file loaded")
   await fileChooser.accept(["./to_import.csv"])
   await page.click('.js-import-load-data')
-  await delay(5000)
-  // await page.waitForSelector(".tstore-checkbox__label_with-text:last-child")
-  await page.click(".tstore-checkbox__label_with-text:last-child")
+  await page.waitForSelector('[name="importphoto"]')
+  await page.screenshot("shot.png")
+  await page.click('[name="importphoto"]')
   await page.click(".btn_importcsv_proccess")
   console.log("finish")
   browser.close()
