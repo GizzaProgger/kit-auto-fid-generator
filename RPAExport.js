@@ -22,13 +22,24 @@ import { executablePath } from "puppeteer"
     })
   )
 
-  const browser = await puppeteer.launch({
-    headless: process.env.IS_DEV,
-    executablePath: process.env.IS_DEV ? '/usr/bin/chromium-browser' : executablePath(),
-    args: ['--no-sandbox']
-  })
+  let browser
+  try {
+    browser = await puppeteer.launch({
+      headless: false,
+      executablePath: executablePath(),
+      args: ['--no-sandbox']
+    })
+  } catch (error) {
+    browser = await puppeteer.launch({
+      headless: true,
+      executablePath: '/usr/bin/chromium-browser',
+      args: ['--no-sandbox']
+    })
+  }
   const page = await browser.newPage()
   await page.goto(AdminUrl)
+  await page.screenshot({ path: "shot.png" })
+
 
   await page.waitForSelector("#form");
   console.log("page loaded")
