@@ -56,7 +56,7 @@ import { executablePath } from "puppeteer"
   // await page.evaluate(() => location.href = "https://store.tilda.cc/store/?projectid=4201264")
   // await page.goto("https://store.tilda.cc/store/?projectid=4201264")
 
-
+  await page.screenshot({ path: "shot1.png" })
   await page.click("[href='/projects/?projectid=4201264']")
   await page
     .waitForSelector("[href='/identity/gostore/?projectid=4201264']")
@@ -76,13 +76,15 @@ import { executablePath } from "puppeteer"
   const uploader = await page.$("input[type='file']")
   await uploader.uploadFile(process.cwd() + "/to_import.csv")
   await page.click('.js-import-load-data')
-  await page.screenshot({ path: "shot.png" })
-  await page.waitForSelector('[name="importphoto"]')
+  await page.screenshot({ path: "shot2.png" })
+  await delay(60 * 1000)
   
 
   await page.click('[name="importphoto"]')
   await page.click(".btn_importcsv_proccess")
   console.log("finish")
+  await delay(20 * 60 * 1000)
+  await page.screenshot({ path: "shot3.png" })
   browser.close()
 })()
 

@@ -1,4 +1,5 @@
 <?php
+    ini_set('error_reporting', E_ERROR );
 
     $example = array(
         'Tilda UID' => "",
@@ -17,15 +18,8 @@
         'Modifications' => "",
         'External ID' => "",
         'Parent UID' => "",
-        'Characteristics:Пробег:' => "",
-        'Characteristics:Тип кузова:' => "",
         'Characteristics:Двигатель' => "",
-        'Characteristics:Трансмиссия:' => "",
-        'Characteristics:Руль:' => "",
         'Characteristics:Состояние' => "",
-        'Characteristics:Привод:' => "",
-        'Characteristics:Цвет:' => "",
-        'Characteristics:Год выпуска:' => "",
         'Characteristics:Модель автомобиля' => "",
         'Characteristics:Пробег' => "",
         'Characteristics:Тип кузова' => "",
@@ -34,7 +28,6 @@
         'Characteristics:Привод' => "",
         'Characteristics:Цвет' => "",
         'Characteristics:Год выпуска' => "",
-        'Characteristics:Тип транспорта:' => "",
         'Characteristics:Тип транспорта' => "",
         'Weight' => "",
         'Length' => "",
@@ -95,7 +88,6 @@
 
                 $cols[] = $col_val; // добавляем колонку в данные
             }
-
             $CSV_str .= implode( $col_delimiter, $cols ) . $row_delimiter; // добавляем строку в данные
         }
 
@@ -189,24 +181,30 @@
 
     file_put_contents($export, download_page($url));
 
-    $cars = array(array('Brand', 'SKU', 'Mark', 'Category', 'Title', 'Description', 'Text', 'Photo', 'Price', 'Quantity', 'Price Old', 'Editions', 'Modifications', 'External ID', 'Parent UID', 'Characteristics:Пробег:', 'Characteristics:Тип кузова:', 'Characteristics:Двигатель', 'Characteristics:Трансмиссия:', 'Characteristics:Руль:', 'Characteristics:Состояние', 'Characteristics:Привод:', 'Characteristics:Цвет:', 'Characteristics:Год выпуска:', 'Characteristics:Модель автомобиля', 'Characteristics:Пробег', 'Characteristics:Тип кузова', 'Characteristics:Трансмиссия', 'Characteristics:Руль', 'Characteristics:Привод', 'Characteristics:Цвет', 'Characteristics:Год выпуска', 'Weight', 'Length', 'Width', 'Height'));
+    $cars = array(array('Brand', 'SKU', 'Mark', 'Category', 'Title', 'Description', 'Text', 'Photo', 'Price', 'Quantity', 'Price Old', 'Editions', 'Modifications', 'External ID', 'Parent UID', 'Characteristics:Двигатель', 'Characteristics:Состояние', 'Characteristics:Модель автомобиля', 'Characteristics:Пробег', 'Characteristics:Тип кузова', 'Characteristics:Трансмиссия', 'Characteristics:Руль', 'Characteristics:Привод', 'Characteristics:Цвет', 'Characteristics:Год выпуска', 'Weight', 'Length', 'Width', 'Height'));
 
     $xml = simplexml_load_file($export);
     $array = json_decode(json_encode($xml), true);
-
     foreach ($array['cars']['car'] as $car){
         
         $re = '/Комплектация:(.*\n*\s*)✅-Предоставим/imsU';
         preg_match_all($re, $car['description'], $matches, PREG_SET_ORDER, 0);
         $description = trim($matches[0][1]);
-        
-        $cars[] = array(
+        $pre_description = "";
+        $pre_description = '<span style="font-weight: 400;">Год выпуска: '. $car['year'] .'</span>г.в.<br>';
+        $pre_description .= '<p style="text-align: left;"><span style="font-weight: 400;">Пробег: </span>'. $car['run'] .' км</p>';
+        $pre_description .= '<span style="font-weight: 400;">Тип кузова: '. $car['body_type'] .'</span><br>';
+        $pre_description .= '<span style="font-weight: 400;">Трансмиссия: </span>' . $car['transmission'];
+        if (gettype($car['extras']) == 'string') {
+            $description .= "<br>" . $car['extras'];
+        }
+        $car_element = array(
             'Brand' => $car['mark_id'],
             'SKU' => "",
             'Mark' => "",
             'Category' => "Все автомобили;".$car['mark_id'],
             'Title' => $car['mark_id']." ".$car['folder_id'],
-            'Description' => "Год выпуска: {$car['year']}<br />Пробег: {$car['run']} ки<br />Тип кузова: {$car['body_type']}<br />Трансмиссия: {$car['transmission']}",
+            'Description' => $pre_description,
             'Text' => str_replace(PHP_EOL, '<br>', $description),
             'Photo' => implode(" ", $car['images']['image']),
             'Price' => $car['price'],
@@ -216,15 +214,8 @@
             'Modifications' => "",
             'External ID' => $car['vin'],
             'Parent UID' => "",
-            'Characteristics:Пробег:' => $car['run']." км",
-            'Characteristics:Тип кузова:' => $car['body_type'],
             'Characteristics:Двигатель' => $car['modification_id'],
-            'Characteristics:Трансмиссия:' => $car['transmission'],
-            'Characteristics:Руль:' => $car['wheel'],
             'Characteristics:Состояние' => $car['state'],
-            'Characteristics:Привод:' => $car['drive'],
-            'Characteristics:Цвет:' => $car['color'],
-            'Characteristics:Год выпуска:' => $car['year'],
             'Characteristics:Модель автомобиля' => "",
             'Characteristics:Пробег' => $car['run']." км",
             'Characteristics:Тип кузова' => $car['body_type'],
@@ -238,10 +229,14 @@
             'Width' => 0,
             'Height' => 0
         );
+        foreach ($car_element as $key => $value) {
+            if (gettype($value) != 'string') {
+                $car_element[$key] = "";
+            }
+        }
+        $cars[] = $car_element;
+
     }
 
     create_csv_file($cars, __DIR__.'/to_import.csv');
-
-    echo "<h1>Файл создан, скачайте тут - <a href='https://lucky38.ru/to_import.csv'>скачать</a></h1>";
-
 ?>
