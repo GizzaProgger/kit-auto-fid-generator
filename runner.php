@@ -1,4 +1,5 @@
 <?php
+
     ini_set('error_reporting', E_ERROR );
 
     $example = array(
@@ -39,6 +40,10 @@
         'FB title' => "",
         'FB descr' => ""
     );
+
+    function spre($array){
+        return "<pre>".print_r($array, true)."</pre>";
+    }
 
     function download_page($path){
         $ch = curl_init();
@@ -92,11 +97,12 @@
         }
 
         $CSV_str = rtrim( $CSV_str, $row_delimiter );
-
+        print($file);
         // задаем кодировку windows-1251 для строки
         if( $file ){
-            $CSV_str = iconv( "UTF-8", "cp1251",  $CSV_str );
-
+            // print($CSV_str);
+            // $CSV_str = iconv( "UTF-8", "cp1251",  $CSV_str );
+            // print($CSV_str);
             // создаем csv файл и записываем в него строку
             $done = file_put_contents( $file, $CSV_str );
 
@@ -176,7 +182,7 @@
         return $data;
     }
 
-    $url = "https://turbodealer.ru/export/218914_yml_tilda.xml";
+    $url = "https://export.maxposter.ru/autoru-format-cars/4157-11158.xml";
     $export = __DIR__."/export.xml";
 
     file_put_contents($export, download_page($url));
@@ -187,14 +193,14 @@
     $array = json_decode(json_encode($xml), true);
     foreach ($array['cars']['car'] as $car){
         
-        $re = '/Комплектация:(.*\n*\s*)✅-Предоставим/imsU';
+        $re = '/Комплектация:(.*\n*\s*)Наш автосалон предлагает/imsU';
         preg_match_all($re, $car['description'], $matches, PREG_SET_ORDER, 0);
         $description = trim($matches[0][1]);
         $pre_description = "";
         $pre_description = '<span style="font-weight: 400;">Год выпуска: '. $car['year'] .'</span>г.в.<br>';
         $pre_description .= '<p style="text-align: left;"><span style="font-weight: 400;">Пробег: </span>'. $car['run'] .' км</p>';
         $pre_description .= '<span style="font-weight: 400;">Тип кузова: '. $car['body_type'] .'</span><br>';
-        $pre_description .= '<span style="font-weight: 400;">Трансмиссия: </span>' . $car['transmission'];
+        $pre_description .= '<span style="font-weight: 400;">Трансмиссия: </span>' . $car['gearbox'];
         if (gettype($car['extras']) == 'string') {
             $description .= "<br>" . $car['extras'];
         }
@@ -216,10 +222,10 @@
             'Parent UID' => "",
             'Characteristics:Двигатель' => $car['modification_id'],
             'Characteristics:Состояние' => $car['state'],
-            'Characteristics:Модель автомобиля' => "",
+            'Characteristics:Модель автомобиля' => $car['folder_id'],
             'Characteristics:Пробег' => $car['run']." км",
             'Characteristics:Тип кузова' => $car['body_type'],
-            'Characteristics:Трансмиссия' => $car['transmission'],
+            'Characteristics:Трансмиссия' => $car['gearbox'],
             'Characteristics:Руль' => $car['wheel'],
             'Characteristics:Привод' => $car['drive'],
             'Characteristics:Цвет' => $car['color'],
@@ -235,8 +241,8 @@
             }
         }
         $cars[] = $car_element;
-
-    }
+    } 
 
     create_csv_file($cars, __DIR__.'/to_import.csv');
+
 ?>

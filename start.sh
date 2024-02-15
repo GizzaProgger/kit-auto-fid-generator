@@ -1,2 +1,2 @@
 #!/bin/bash
-php runner.php && node RPAExport
+cd /home/kit-auto-fid-generator && php runner.php && node RPAExport && echo RPAExport done > cron.log
