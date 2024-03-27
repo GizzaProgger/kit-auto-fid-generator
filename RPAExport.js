@@ -113,7 +113,7 @@ const logger = winston.createLogger({
     // await page.evaluate(() => location.href = "https://store.tilda.cc/store/?projectid=4201264")
     // await page.goto("https://store.tilda.cc/store/?projectid=4201264")
 
-    await page.click("[href='/projects/?projectid=4201264']")
+    await page.click("[href='https://kit-auto18.ru']")
     await page.waitForSelector("[href='/identity/gostore/?projectid=4201264']")
   } catch (error) {
     await page.screenshot({ path: "shot3.png" });
